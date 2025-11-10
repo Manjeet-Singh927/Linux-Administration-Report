@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Simple GUI Calculator using Zenity
+
+# Ask for the first number
+num1=$(zenity --entry --title="Calculator" --text="Enter the first number:")
+
+# If the user cancels
+if [ $? -ne 0 ]; then
+    exit 0
+fi
+
+# Ask for the second number
+num2=$(zenity --entry --title="Calculator" --text="Enter the second number:")
+
+if [ $? -ne 0 ]; then
+    exit 0
+fi
+
+# Choose operation
+operation=$(zenity --list --title="Choose Operation" \
+    --column="Operation" "+" "-" "*" "/")
+
+if [ $? -ne 0 ]; then
+    exit 0
+fi
+
+# Perform calculation
+case $operation in
+    "+")
+        result=$(echo "$num1 + $num2" | bc -l)
+        ;;
+    "-")
+        result=$(echo "$num1 - $num2" | bc -l)
+        ;;
+    "*")
+        result=$(echo "$num1 * $num2" | bc -l)
+        ;;
+    "/")
+        if [ "$num2" == "0" ]; then
+            zenity --error --text="Error: Division by zero!"
+            exit 1
+        fi
+        result=$(echo "scale=10; $num1 / $num2" | bc -l)
+        ;;
+    *)
+        zenity --error --text="Invalid operation!"
+        exit 1
+        ;;
+esac
+
+# Show the result
+zenity --info --title="Result" --text="Result: $result"
